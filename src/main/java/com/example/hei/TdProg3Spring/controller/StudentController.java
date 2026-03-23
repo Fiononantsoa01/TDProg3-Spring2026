@@ -7,8 +7,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
-
-import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -38,7 +36,7 @@ public class StudentController {
     )
     public ResponseEntity<?> addStudent(@RequestBody List<Student> newStudents) {
         try {
-            List<Student> savedStudents = service.addStudent(newStudents);
+            String savedStudents = service.addStudent(newStudents);
             return ResponseEntity
                     .status(HttpStatus.CREATED)
                     .body(savedStudents);
@@ -51,13 +49,40 @@ public class StudentController {
         }
 
     }
-    @RequestMapping(
-            path = "/students",
-            method = RequestMethod.GET,
-            produces = MediaType.TEXT_PLAIN_VALUE
-    )
-    public String getStudents(){
-        return service.getStudentAsText();
+    @GetMapping("/students" )
+    public ResponseEntity<?> getStudents(
+            @RequestHeader(value = "Accept", required = false)String acceptHeader
+    ){
+       try {
+           if(acceptHeader == null){
+               return ResponseEntity
+                       .status(HttpStatus.BAD_REQUEST)
+                       .body("Please enter the accept header");
+           }
+          String allStudent =service.getStudent();
+           if(acceptHeader.contains(MediaType.TEXT_PLAIN_VALUE
+           )){
+               return ResponseEntity
+                       .status(HttpStatus.OK)
+                       .contentType(MediaType.TEXT_PLAIN)
+                       .body(service.getStudent());
+           }
+           else if(acceptHeader.contains(MediaType.APPLICATION_JSON_VALUE)){
+               return ResponseEntity
+                       .status(HttpStatus.OK)
+                       .contentType(MediaType.APPLICATION_JSON)
+                       .body(allStudent);
+           }
+           else {
+               return ResponseEntity
+                       .status(HttpStatus.NOT_IMPLEMENTED)
+                       .body("Format not supported");
+           }
+       }catch (Exception e) {
+        return ResponseEntity
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body("server error");
+       }
     }
 
 }

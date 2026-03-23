@@ -21,7 +21,7 @@ public class StudentService {
                 .collect(Collectors.joining(","));
     }
     // methode pour retourner les etudiant en text plain
-    public String getStudentAsText(){
+    public String getStudent(){
         List<Student> existStudents = repository.findAllStudents();
         if(existStudents.isEmpty()){
             return "the student list is empty until now";
